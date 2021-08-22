@@ -28,7 +28,9 @@
 
 - (void)dealloc {
     Py_Finalize();
-    Py_CLEAR(self.pyInstance);
+    if (self.pyInstance) {
+        Py_DECREF(self.pyInstance);
+    }
     self.pythonQ = nil;
 }
 
@@ -131,8 +133,8 @@
     
     self.pyInstance = PyInstanceMethod_New(pyClass);
     
-    Py_CLEAR(pyClass);
-    Py_CLEAR(pModule);
+    Py_DECREF(pyClass);
+    Py_DECREF(pModule);
     if (!self.pyInstance) {
         [self p_handleFailCallbackWithErrorMsg:@"Error when initializing python instance obj."];
         return NO;
@@ -151,7 +153,7 @@
     char *cStr = NULL;
     
     PyArg_Parse(result, "s", &cStr);
-    Py_CLEAR(result);
+    Py_DECREF(result);
     
     if (cStr == NULL) {
         [self p_handleFailCallbackWithErrorMsg:@"Return value cannot be parsed after calling Python method."];
